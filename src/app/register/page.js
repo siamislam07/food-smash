@@ -60,6 +60,7 @@ export default function RegisterPage() {
                     onChange={ev => setPassword(ev.target.value)}
                 />
                 <button type="submit" disabled={creatingUser}>Register</button>
+                
                 <div className="my-4 text-center text-gray-500">
                     or login with provider
                 </div>

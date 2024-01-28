@@ -17,6 +17,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "autoprefixer": "^10.0.1",
