@@ -3,35 +3,73 @@ import { useSession } from "next-auth/react"
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
     const session = useSession()
-    const [userName, setUserName] = useState(session?.data?.user?.name || '')
+    const [userName, setUserName] = useState('')
+    const [image, setImage] = useState('')
     const { status } = session
-    const [saved, setSaved] = useState(false)
-    const [isSaving, setIsSaving] = useState(false)
+
 
     useEffect(() => {
         if (status === 'authenticated') {
             setUserName(session?.data?.user?.name)
+            setImage(session.data.user.image)
         }
 
     }, [session, status])
 
     async function handleProfileUpdate(e) {
         e.preventDefault()
-        setSaved(false)
-        setIsSaving(true)
-        const response = await fetch('/api/profile', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName })
-        })
-        setIsSaving(false)
-        if (response.ok) {
-            setSaved(true)
-        }
 
+        const savingPromise = new Promise(async (resolve, reject) => {
+
+            const response = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: userName, image })
+            })
+            if (response.ok)
+                resolve()
+            else
+                reject()
+        })
+
+        await toast.promise(savingPromise, {
+            loading: 'Saving...',
+            success: 'Profile Saved!',
+            error: 'Error'
+
+        })
+    }
+
+    async function handleFileChange(e) {
+        const files = e.target.files
+        if (files?.length === 1) {
+            const data = new FormData;
+            data.set('file', files[0])
+
+            const uploadPromise = fetch('/api/upload', {
+                method: 'POST',
+                body: data,
+
+            }).then(async response => {
+                if (response.ok) {
+                    const link = await response.json();
+                    setImage(link?.imageUrl);
+
+                }
+            })
+
+
+
+            await toast.promise(uploadPromise, {
+                loading: 'Uploading...',
+                success: 'Uploading Complete',
+                error: 'Upload error'
+            })
+        }
     }
 
 
@@ -44,30 +82,29 @@ export default function ProfilePage() {
         return redirect('/login')
     }
 
-    const userImage = session?.data?.user?.image
+
 
     return (
         <section className="mt-24">
             <h1 className="text-center text-primary text-4xl mb-5">profile</h1>
             <div className="max-w-md mx-auto " >
 
-                {saved ? (
-                    <h2 className="text-center bg-green-100 p-4 rounded-lg border border-x-green-400">Profile saved!</h2>
-                ):''}
-                {
-                    isSaving ? (
-                        <h2 className="text-center bg-blue-100 p-4 rounded-lg border border-x-blue-400">Saving...</h2>
-                    ):''
-                }
+
                 <div className="flex gap-3 items-center">
                     <div>
+                        <div className=" p-2 rounded-xl relative  max-w-[120px]">
+                            {image && (
+                                <Image className="rounded-lg w-full h-full mb-1" src={image} width={250} height={250} alt="userImage" />
 
-                        <div className=" p-2 rounded-xl">
-                            <Image className="rounded-lg w-full h-full mb-1" src={userImage} width={250} height={250} alt="userImage" />
-                            <button type="button">Edit</button>
+                            )}
+
+                            <label >
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                <span className="border border-gray-300 cursor-pointer rounded-lg p-2 text-center block ">Edit</span>
+                            </label>
                         </div>
-
                     </div>
+
                     <form className="grow" onSubmit={handleProfileUpdate}>
                         <input type="text"
                             value={userName}
@@ -76,6 +113,7 @@ export default function ProfilePage() {
                         <input type="email" disabled value={session?.data?.user?.email} />
                         <button type="submit">save</button>
                     </form>
+
                 </div>
 
             </div>
