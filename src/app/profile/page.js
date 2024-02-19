@@ -1,9 +1,11 @@
 'use client'
 import { useSession } from "next-auth/react"
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import UserTabs from "@/components/layout/UserTabs"
 
 export default function ProfilePage() {
     const session = useSession()
@@ -14,6 +16,8 @@ export default function ProfilePage() {
     const [postalCode, setPostalCode] = useState('')
     const [city, setCity] = useState('')
     const [country, setCountry] = useState('')
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [profileFetched, setProfileFetched] = useState(false)
     const { status } = session
 
 
@@ -24,11 +28,14 @@ export default function ProfilePage() {
             fetch('/api/profile').then(response => {
                 response.json().then(data => {
                     // console.log(data);
-                    setPhone(data.phone)
-                    setStreetAddress(data.streetAddress)
-                    setPostalCode(data.postalCode)
-                    setCity(data.city)
-                    setCountry(data.country)
+                    setPhone(data?.phone)
+                    console.log(data?.phone);
+                    setStreetAddress(data?.streetAddress)
+                    setPostalCode(data?.postalCode)
+                    setCity(data?.city)
+                    setCountry(data?.country)
+                    setIsAdmin(data?.admin)
+                    setProfileFetched(true)
                 })
             })
         }
@@ -97,7 +104,7 @@ export default function ProfilePage() {
 
 
 
-    if (status === 'loading') {
+    if (status === 'loading' || !profileFetched) {
         return 'Loading...'
     }
 
@@ -109,8 +116,9 @@ export default function ProfilePage() {
 
     return (
         <section className="mt-24">
-            <h1 className="text-center text-primary text-4xl mb-5">profile</h1>
-            <div className="max-w-md mx-auto " >
+            <UserTabs isAdmin={isAdmin}></UserTabs>
+            
+            <div className="max-w-md mx-auto mt-8" >
 
 
                 <div className="flex gap-4">
