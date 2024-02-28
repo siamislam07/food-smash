@@ -15,9 +15,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className='bg-gray-800'>
       <body className={roboto.className}>
-        <main className='max-w-4xl mx-auto  p-4'>
+        <main className='max-w-4xl mx-auto  p-4 '>
           <AppProvider>
             <Toaster/>
           <Header />

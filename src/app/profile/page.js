@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import UserTabs from "@/components/layout/UserTabs"
+import EditAbleImage from "../../components/layout/EditAbleImage";
 
 export default function ProfilePage() {
     const session = useSession()
@@ -29,7 +30,7 @@ export default function ProfilePage() {
                 response.json().then(data => {
                     // console.log(data);
                     setPhone(data?.phone)
-                    console.log(data?.phone);
+                    // console.log(data?.phone);
                     setStreetAddress(data?.streetAddress)
                     setPostalCode(data?.postalCode)
                     setCity(data?.city)
@@ -74,33 +75,7 @@ export default function ProfilePage() {
         })
     }
 
-    async function handleFileChange(e) {
-        const files = e.target.files
-        if (files?.length === 1) {
-            const data = new FormData;
-            data.set('file', files[0])
-
-            const uploadPromise = fetch('/api/upload', {
-                method: 'POST',
-                body: data,
-
-            }).then(async response => {
-                if (response.ok) {
-                    const link = await response.json();
-                    setImage(link?.imageUrl);
-
-                }
-            })
-
-
-
-            await toast.promise(uploadPromise, {
-                loading: 'Uploading...',
-                success: 'Uploading Complete',
-                error: 'Upload error'
-            })
-        }
-    }
+    
 
 
 
@@ -117,22 +92,14 @@ export default function ProfilePage() {
     return (
         <section className="mt-24">
             <UserTabs isAdmin={isAdmin}></UserTabs>
-            
+
             <div className="max-w-md mx-auto mt-8" >
 
 
                 <div className="flex gap-4">
                     <div>
                         <div className=" p-2 rounded-xl relative  max-w-[120px]">
-                            {image && (
-                                <Image className="rounded-lg w-full h-full mb-1" src={image} width={250} height={250} alt="userImage" />
-
-                            )}
-
-                            <label >
-                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                                <span className="border border-gray-300 cursor-pointer rounded-lg p-2 text-center block ">Edit</span>
-                            </label>
+                            <EditAbleImage link={image} setLink={setImage}/>
                         </div>
                     </div>
 
