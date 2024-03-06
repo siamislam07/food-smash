@@ -95,7 +95,7 @@ const Page = () => {
                             setEditedCategory(c);
                             setCategoryName(c.name)
                         }}
-                        className="bg-gray-200 cursor-pointer rounded-xl p-2 px-4 mb-1 flex gap-2">
+                        className="cursor-pointer rounded-xl p-2 px-4 mb-1 flex gap-2">
 
                         {c.name}
                     </button>
